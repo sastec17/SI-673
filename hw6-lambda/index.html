@@ -1,0 +1,510 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Borromean Digital | Weather Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+
+    <!-- jQuery and Highcharts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <style>
+        body {
+            background-color: #f5f7fb;
+            color: #1e293b;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        .navbar-custom {
+            background-color: #15243b;
+            padding: 18px 0;
+        }
+
+        .brand-name {
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            color: #a8b8cf;
+            font-size: 1rem;
+        }
+
+        .dashboard {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        .eyebrow {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .airport-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 750;
+            letter-spacing: -0.04em;
+            margin: 8px 0;
+        }
+
+        .airport-description {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .search-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        .form-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .form-control {
+            border-color: #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .btn-search {
+            background-color: #2563eb;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-weight: 600;
+        }
+
+        .btn-search:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-search:disabled {
+            background-color: #94a3b8;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 25px;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .metric-value {
+            color: #0f172a;
+            font-size: 2rem;
+            font-weight: 750;
+            letter-spacing: -0.04em;
+            margin-bottom: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-date {
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            line-height: 1.5;
+        }
+
+        .metric-accent {
+            width: 32px;
+            height: 4px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .accent-blue {
+            background-color: #3b82f6;
+        }
+
+        .accent-teal {
+            background-color: #14b8a6;
+        }
+
+        .accent-purple {
+            background-color: #8b5cf6;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 28px;
+            margin-top: 28px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .section-description {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        @media (max-width: 576px) {
+            .dashboard {
+                padding: 28px 16px;
+            }
+
+            .search-panel,
+            .metric-card,
+            .chart-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar-custom">
+        <div class="container">
+            <div>
+                <div class="brand-name">Borromean Digital</div>
+                <div class="brand-subtitle">Airport Weather Monitoring</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard">
+
+        <!-- Airport Heading -->
+        <section>
+            <div class="eyebrow">Weather Dashboard</div>
+
+            <h1 class="airport-title" id="airport-title">
+                Airport: --
+            </h1>
+
+            <p class="airport-description" id="airport-description">
+                Search for an airport to view its current weather conditions.
+            </p>
+        </section>
+
+        <!-- Search Form -->
+        <section class="search-panel">
+            <form id="airport">
+                <label for="findport" class="form-label">
+                    Airport ICAO Code
+                </label>
+
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-9">
+                        <input
+                            type="text"
+                            id="findport"
+                            class="form-control"
+                            placeholder="Enter airport code (e.g., KDTW)"
+                            maxlength="4"
+                            required
+                            autocomplete="off"
+                            aria-label="Airport ICAO Code">
+                    </div>
+
+                    <div class="col-md-3">
+                        <button
+                            type="submit"
+                            id="search-button"
+                            class="btn btn-primary btn-search w-100">
+                            Search Airport
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-text mt-2">
+                    Try KDTW (Detroit), KORD (Chicago), or KARB (Ann Arbor).
+                </div>
+            </form>
+        </section>
+
+        <!-- Status Messages -->
+        <div id="status"
+             class="alert d-none"
+             role="status"
+             aria-live="polite">
+        </div>
+
+        <!-- Weather Metrics -->
+        <section>
+            <div class="row g-4">
+
+                <!-- Temperature -->
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-accent accent-blue"></div>
+                        <div class="metric-label">
+                            Temperature
+                        </div>
+                        <p class="metric-value" id="temp">--</p>
+                    </div>
+                </div>
+
+                <!-- Dew Point -->
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-accent accent-teal"></div>
+                        <div class="metric-label">
+                            Dew Point
+                        </div>
+                        <p class="metric-value" id="dewpoint">--</p>
+                    </div>
+                </div>
+
+                <!-- Observation Time -->
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-accent accent-purple"></div>
+                        <div class="metric-label">
+                            Last Observation
+                        </div>
+                        <p class="metric-value metric-date" id="date">--</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Historical Temperature Chart -->
+        <section class="chart-card">
+            <h2 class="section-title">Temperature History</h2>
+            <p class="section-description">
+                Recent temperature observations for the selected airport.
+            </p>
+
+            <div id="history" style="height: 360px;"></div>
+        </section>
+
+        <footer class="footer">
+            Borromean Digital &middot; Cloud Infrastructure Team
+        </footer>
+
+    </main>
+
+    <script>
+        // Your API Gateway endpoint
+        const api_gateway =
+            "https://vk43dun6l0.execute-api.us-east-1.amazonaws.com";
+
+        // Initialize the temperature chart
+        const chart = Highcharts.chart("history", {
+            chart: {
+                type: "line",
+                backgroundColor: "transparent",
+                spacingTop: 20
+            },
+
+            credits: {
+                enabled: false
+            },
+
+            title: {
+                text: null
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            colors: ["#2563eb"],
+
+            xAxis: {
+                labels: {
+                    enabled: false
+                },
+                title: {
+                    text: null
+                },
+                lineColor: "#e2e8f0",
+                tickLength: 0
+            },
+
+            yAxis: {
+                title: {
+                    text: "Temperature"
+                },
+                gridLineColor: "#e2e8f0"
+            },
+
+            tooltip: {
+                valueDecimals: 1
+            },
+
+            plotOptions: {
+                line: {
+                    lineWidth: 3,
+                    marker: {
+                        enabled: true,
+                        radius: 3
+                    }
+                }
+            },
+
+            series: [{
+                name: "Temperature",
+                data: []
+            }],
+
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        chart: {
+                            height: 300
+                        }
+                    }
+                }]
+            }
+        });
+
+        // Display a status message
+        function showStatus(message, type) {
+            $("#status")
+                .removeClass("d-none alert-info alert-danger alert-success")
+                .addClass("alert-" + type)
+                .text(message);
+        }
+
+        // Display a measurement, including zero values
+        function displayMeasurement(value) {
+            if (value === null || value === undefined || value === "") {
+                return "N/A";
+            }
+
+            return String(value);
+        }
+
+        // Handle airport searches
+        $(document).ready(function() {
+
+            $("#airport").submit(function(event) {
+                event.preventDefault();
+
+                const airportCode = $("#findport").val().trim().toUpperCase();
+
+                if (!/^[A-Z]{4}$/.test(airportCode)) {
+                    showStatus("Enter a valid four-letter ICAO airport code.", "danger");
+                    return;
+                }
+
+                $("#findport").val(airportCode);
+
+                // Show loading state
+                showStatus("Loading weather data for " + airportCode + "...", "info");
+
+                $("#search-button")
+                    .prop("disabled", true)
+                    .text("Loading...");
+
+                // Request weather data from API Gateway
+                $.getJSON(api_gateway, {
+                    airport: airportCode
+                })
+                .done(function(data) {
+
+                    // Use the airport returned by Lambda, if available
+                    const airport = data.airport || airportCode;
+
+                    // Update airport heading
+                    $("#airport-title").text("Airport: " + airport);
+
+                    $("#airport-description").text(
+                        "Current weather conditions and recent observations for " +
+                        airport + "."
+                    );
+
+                    // Update weather metrics
+                    $("#temp").text(displayMeasurement(data.temp));
+                    $("#dewpoint").text(displayMeasurement(data.dewpoint));
+                    $("#date").text(displayMeasurement(data.date));
+
+                    // Update temperature history chart
+                    chart.series[0].update({
+                        name: airport,
+                        data: Array.isArray(data.history) ? data.history : []
+                    }, true);
+
+                    // Clear any previous error message
+                    $("#status").addClass("d-none");
+
+                })
+                .fail(function(jqXHR) {
+
+                    // Show a helpful error message
+                    let message =
+                        "Unable to retrieve weather data. " +
+                        "Check the airport code and try again.";
+
+                    if (jqXHR.status === 0) {
+                        message =
+                            "Unable to connect to the API. " +
+                            "Check your API Gateway URL and CORS configuration.";
+                    }
+
+                    showStatus(message, "danger");
+                })
+                .always(function() {
+
+                    // Restore the button
+                    $("#search-button")
+                        .prop("disabled", false)
+                        .text("Search Airport");
+
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>
