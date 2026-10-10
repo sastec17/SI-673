@@ -20,7 +20,7 @@ def get_weather_data(path, params=None):
 
     # TODO 2: Read WEATHER_API_BASE_URL from the Lambda environment.
     # Remove a trailing slash with .rstrip("/")
-    base_url = "REPLACE_ME"
+    base_url = os
 
     url = f"{base_url}{path}"
 
@@ -45,7 +45,7 @@ def get_value(properties, field):
     if value is None:
         return None
 
-    return round(value * 9 / 5 + 32)
+    return value
 
 
 def get_history(airport):
