@@ -292,7 +292,7 @@
         <hr>
 
         <div class="field">
-          <label for="endpoint">Image endpoint</label>
+          <label for="camera-endpoint">Image endpoint</label>
           <input
             id="camera-endpoint"
             type="url"
@@ -418,8 +418,13 @@
           throw new Error(detail);
         }
 
+        const configuredEndpoints = [
+          cameraEndpoint && `image data to ${cameraEndpoint}`,
+          lightEndpoint && `light readings to ${lightEndpoint}`,
+        ].filter(Boolean);
+
         showNotice(
-          `Device ${id} registered successfully. Incoming data will be forwarded to ${cameraEndpoint} and ${lightEndpoint}.`,
+          `Device ${id} registered successfully. Incoming data will be forwarded for ${configuredEndpoints.join(" and ")}.`,
           "success"
         );
       } catch (error) {
