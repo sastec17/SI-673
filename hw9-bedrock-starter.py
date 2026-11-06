@@ -7,9 +7,7 @@ MODEL_ID = "us.amazon.nova-lite-v1:0"
 
 def lambda_handler(event, context):
     qs = event.get("queryStringParameters") or {}
-
-    # STUDENT TODO: Add a default prompt
-    prompt = qs.get("prompt", "DEFAULT PROMPT")
+    prompt = qs.get("prompt", "Tell me a fun fact about Michigan")
 
     # Invoke model via bedrock
     resp = bedrock.converse(
